@@ -1,0 +1,21 @@
+name: mdo-niger
+channels:
+  - conda-forge
+dependencies:
+  # data processing
+  - python=3.11
+  - pandas=2.2
+  - xlrd=2.0
+  - openpyxl=3.1
+  # Shiny dashboard
+  - r-base=4.5
+  - r-shiny
+  - r-bslib
+  - r-dplyr
+  - r-tidyr
+  - r-readr
+  - r-ggplot2
+  - r-plotly
+  - r-jsonlite
+  - r-dt
+  - r-scales

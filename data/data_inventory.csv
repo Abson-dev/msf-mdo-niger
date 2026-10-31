@@ -1,0 +1,12 @@
+file,sheets,content,how_it_is_used,output
+"MDO_Niger Semaine_2015-53.xls ... MDO 2024 S43.xls (10 yearly workbooks)","One sheet per disease (ROU, MEN, CHO, Palu..., 16-23 per year)","Weekly cases and deaths per health district; confirmed malaria 2015-2020 as tests done / positives","Parsed into the long table; all disease tabs of the app","mdo_long.csv, mdo_*.csv"
+"Yearly workbooks 2015-2023","Prompt_Compl / Prompt-Compl / Promptitude / Complétude","Week x district grid: T on time, L late, N not received; national weekly %","Reporting tab (timeliness and completeness); national % used as a check","completeness_weekly.csv, completeness_national_reported.csv"
+"MDO 2024 S43.xls","Complétude","Cumulative completeness and timeliness (%) per district, region and Niger","Reporting tab (2024)","completeness_2024_cumulative.csv"
+"Yearly workbooks 2015-2021","DC MATERNEL / DC Maternels / DC mat","Maternal deaths per district and week (2015: deaths + live births; 2016-2021: notified + investigated)","Maternal deaths tab","maternal_deaths.csv"
+"MDO_NIGER 2022 S52.xlsx, MDO 2023 S52.xls, MDO 2024 S43.xls","Synthèse","National totals per disease","Cross-check of national totals","validation_checks.csv"
+"MDO_Niger Semaine_52 2016.xls","analyse mas, Sheet3, Sheet4","Severe acute malnutrition: regional totals, weekly regional and Filingué attack rates","Cross-check of 2016 malnutrition figures","validation_checks.csv"
+"MDO_S1-S37_2024_Extrait_DHIS2-18-09-24.xls","S1 ... S37","DHIS2 weekly district data 2024: cases, deaths, completeness, timeliness for 21 diseases","DHIS2 2024 tab; 2024 weekly completeness in Reporting tab","dhis2_2024_weekly.csv, dhis2_2024_totals.csv"
+"MDO_S1-S37_2024_Extrait_DHIS2-18-09-24.xls","Cumul S1-S37_2024, Feuil2, Synthèse","Cumulative weeks 1-37; a second copy of week 35; national summary","Cross-checks of the DHIS2 extract","dhis2_2024_cumulative.csv, dhis2_2024_spare_sheet.csv, validation_checks.csv"
+"data/shp/NER_admbnda_adm1_IGNN_20230720.*","-","Niger region (admin 1) boundaries, IGNN 2023","Region maps in the app","-"
+"MDO_Niger Semaine_52 2016.xls, MDO_Niger Semaine 53 2020.xls, MDO 2024 S43.xls","Sheet2, Feuil1","Empty sheets","Nothing to use","-"
+"MDO 2023 S52.xls","Rapport sur la compatibilité","Excel's file-format compatibility report, not data","Nothing to use","-"
