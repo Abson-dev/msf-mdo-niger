@@ -1,0 +1,17 @@
+# Store text with LF line endings; Windows batch files need CRLF
+* text=auto eol=lf
+*.bat text eol=crlf
+
+# Binary data
+*.xls binary
+*.xlsx binary
+*.png binary
+*.shp binary
+*.shx binary
+*.dbf binary
+*.sbn binary
+*.sbx binary
+
+# Keep generated data out of GitHub's language statistics and diffs
+data/processed/** linguist-generated
+app/data/** linguist-generated
