@@ -39,6 +39,7 @@ This reads `data/raw` and `data/shp` and writes `data/processed`. The processed 
 | `validate.py` | `validation_checks.csv`, `dhis2_vs_workbook_2024.csv` |
 | `build_tables.py` | `mdo_annual.csv`, `mdo_weekly.csv`, `mdo_regional.csv`, `mdo_district.csv`, … |
 | `build_geo.py` | `regions.geojson` from the shapefile |
+| `build_app_data.py` | `app/data/`: the app's tables, including meningitis threshold status per district-week |
 
 ## Run the dashboard
 
@@ -46,9 +47,27 @@ This reads `data/raw` and `data/shp` and writes `data/processed`. The processed 
 Rscript -e "shiny::runApp('app', launch.browser = TRUE)"
 ```
 
-Tabs: **Overview**, **Disease explorer** (trend, weekly heatmap, region map, district ranking), **Reporting** (timeliness and completeness), **Maternal deaths**, **DHIS2 2024** (extract vs workbook), **Data & checks**.
+| Tab | What it shows |
+|---|---|
+| Overview | Headline figures for malaria, measles, meningitis and diphtheria; key findings; trends; every disease with a sparkline |
+| Disease explorer | For any disease and year: weekly cases against the range of previous years, yearly cases and case fatality, region map, weekly curves by region, all-years heatmap, district ranking (CSV download) |
+| Meningitis thresholds | Districts crossing the WHO alert (3/100,000/week) and epidemic (10/100,000/week) thresholds, by year and week |
+| Reporting performance | Timeliness and completeness of weekly district reports, 2015–2023; 2024 cumulative and DHIS2 facility completeness |
+| Maternal deaths | Deaths notified and investigated, 2015–2021, by region, week and district |
+| Data & methods | DHIS2 2024 vs weekly reports; source-file inventory; cross-checks; methods, definitions and caveats |
 
-Test that every output renders: `Rscript app/tests/test_app.R`.
+Labels are in English, with the French disease names kept in the overview table. Every chart exports a PNG (camera icon) and every table exports CSV or Excel. A link can open a given tab, e.g. `?tab=Meningitis%20thresholds`.
+
+Test that every output renders for several input sets: `Rscript app/tests/test_app.R`.
+
+## Deploy
+
+`app/` is self-contained: it reads only `app/data/` (7.9 MB, written by `scripts/build_app_data.py`), so the folder can be deployed on its own.
+
+- **shinyapps.io or Posit Connect:** `install.packages("rsconnect")`, then `rsconnect::deployApp("app")`.
+- **Shiny Server:** copy `app/` into the server's app directory.
+
+The app uses no external fonts or map tiles, so it also works offline. The published data are aggregated to health district; there is no individual-level information.
 
 ## What was cleaned
 

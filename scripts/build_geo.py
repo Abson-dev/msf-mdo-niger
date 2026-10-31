@@ -52,13 +52,14 @@ def read_polygons(path):
 
 
 def to_geometry(rings):
-    # group holes under the outer ring before them; GeoJSON wants outer rings counter-clockwise
+    # group holes under the outer ring before them. Rings keep the shapefile's winding (outer clockwise):
+    # plotly draws with d3-geo, which reads counter-clockwise outer rings as "the whole globe minus this shape"
     polys = []
     for ring in rings:
         if signed_area(ring) < 0:
-            polys.append([ring[::-1]])
+            polys.append([ring])
         else:
-            polys[-1].append(ring[::-1])
+            polys[-1].append(ring)
     return {"type": "MultiPolygon", "coordinates": polys}
 
 
