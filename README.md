@@ -14,6 +14,7 @@ Ten years of Niger's weekly notifiable disease reports (*Maladies à Déclaratio
 
 - [Quick start](#quick-start)
 - [The dashboard](#the-dashboard)
+- [Statistical models and reports](#statistical-models-and-reports)
 - [Data](#data)
 - [Repository structure](#repository-structure)
 - [Rebuilding the data](#rebuilding-the-data)
@@ -68,6 +69,29 @@ Every chart exports a PNG (camera icon), every table exports CSV or Excel, and a
   </tr>
 </table>
 
+## Statistical models and reports
+
+Two Word documents accompany the dashboard:
+
+- **Methodology note:** [`docs/methodology/MDO_Niger_econometric_methodology.docx`](docs/methodology/MDO_Niger_econometric_methodology.docx). It covers which econometric and statistical models suit these data, with full mathematical specifications.
+- **Results report:** [`analysis/report/MDO_Niger_model_results.docx`](analysis/report/MDO_Niger_model_results.docx), with estimates from seven model families:
+  - negative binomial panel models (trends and seasonality);
+  - hurdle and zero-inflated models (outbreak occurrence);
+  - the endemic–epidemic model (local vs between-district transmission);
+  - forecasting with rolling-origin validation;
+  - reporting timeliness, case fatality, and outbreak detection.
+
+The models run in a separate environment:
+
+```bash
+conda env create -f analysis/environment-models.yml
+conda activate mdo-models
+Rscript analysis/run_models.R                        # all models, about 15 minutes -> analysis/output/
+powershell -File analysis/report/build_report.ps1    # Word report (Windows, needs Word and the doc-tools env with pandoc)
+```
+
+`analysis/output/` (generated tables and figures) is not committed; it is rebuilt from the local data.
+
 ## Data
 
 Source: Ministry of Public Health of Niger, weekly MDO reports. Every sheet of every file is used, either in the dashboard or to check it; [`data/data_inventory.csv`](data/data_inventory.csv) lists them one by one.
@@ -104,6 +128,13 @@ The processed tables and their columns are described in the [data dictionary](do
 │   ├── build_tables.py      Yearly, weekly, regional and district aggregates
 │   ├── build_geo.py         Shapefile -> regions.geojson
 │   └── build_app_data.py    app/data/, including meningitis thresholds
+├── analysis/                Statistical models (R) and the results report
+│   ├── environment-models.yml
+│   ├── run_models.R         Runs the seven model scripts in R/ in order
+│   ├── R/                   00_setup.R … 07_outbreak.R
+│   ├── python/              region_adjacency.py (region borders for spatial models)
+│   ├── report/              Report template, build scripts, MDO_Niger_model_results.docx
+│   └── output/              Generated tables and figures (not in git)
 ├── data/                    Data folders are local only (see data/README.md)
 │   ├── README.md            Which files go where
 │   ├── raw/                 Source workbooks and DHIS2 extract (not in git)
@@ -111,6 +142,7 @@ The processed tables and their columns are described in the [data dictionary](do
 │   ├── processed/           Tidy tables, built by the pipeline (not in git)
 │   └── data_inventory.csv   What each source file and sheet contributes
 └── docs/
+    ├── methodology/         Methodology note (Markdown source, figure script, Word document)
     ├── data_dictionary.md
     ├── make_screenshots.R   Regenerates docs/screenshots/
     └── screenshots/

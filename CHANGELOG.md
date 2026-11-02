@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 (2026-11-02)
+
+- Methodology note (`docs/methodology/`): econometric and statistical models for the data, with mathematical specifications.
+- Statistical models (`analysis/`): negative binomial panels, hurdle and zero-inflated models, endemic–epidemic model, forecasting with rolling-origin validation, reporting timeliness, case fatality, outbreak detection; separate `mdo-models` environment.
+- Results report (`analysis/report/MDO_Niger_model_results.docx`), built from the model outputs.
+- All rates use total district population: the disease sheets' own population columns are inconsistent (under-5 population for malnutrition from 2019; none for confirmed malaria 2017–2020).
+
 ## 1.2.0 (2026-11-02)
 
 - Data removed from the repository and its history; `data/raw`, `data/shp`, `data/processed` and `app/data` are git-ignored. `data/README.md` lists the files to obtain and where to put them.

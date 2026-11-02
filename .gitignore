@@ -3,6 +3,13 @@ data/raw/
 data/shp/
 data/processed/
 app/data/
+# generated model outputs (rebuilt by analysis/run_models.R); the Word reports themselves are committed
+analysis/output/
+analysis/report/results_report.md
+analysis/report/*.pdf
+
+# Claude Code local session files
+.claude/
 
 # R
 .Rhistory

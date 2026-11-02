@@ -1,0 +1,18 @@
+# Environment for the statistical models in analysis/ (create with: conda env create -f analysis/environment-models.yml)
+name: mdo-models
+channels:
+  - conda-forge
+dependencies:
+  - r-base=4.5
+  - r-dplyr
+  - r-tidyr
+  - r-readr
+  - r-ggplot2
+  - r-scales
+  - r-fixest        # Poisson PML and negative binomial with fixed effects
+  - r-pscl          # hurdle and zero-inflated count models
+  - r-surveillance  # endemic-epidemic model (hhh4), outbreak detection
+  # glmmTMB is not used: its conda-forge Windows build fails to load (MinGW relocation error)
+  - r-sandwich
+  - r-lmtest
+  - r-lme4          # mixed logit for reporting timeliness
