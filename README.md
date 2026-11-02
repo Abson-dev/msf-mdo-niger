@@ -23,13 +23,16 @@ Ten years of Niger's weekly notifiable disease reports (*Maladies à Déclaratio
 
 ## Quick start
 
-**Windows:** install [Miniforge](https://conda-forge.org/download/), then double-click **`run_app.bat`**. The first run creates the `mdo-niger` environment (a few minutes); after that the dashboard opens in your browser in 10–20 seconds. Keep the black window open while you use it.
+> **The data are not in this repository.** They belong to the Ministry of Public Health of Niger. Get them from the project team and place them as described in [`data/README.md`](data/README.md).
+
+**Windows:** install [Miniforge](https://conda-forge.org/download/), put the data in `data/raw` and `data/shp`, then double-click **`run_app.bat`**. The first run creates the `mdo-niger` environment and builds the dashboard data (a few minutes); after that the dashboard opens in your browser in 10–20 seconds. Keep the black window open while you use it.
 
 **Any system:**
 
 ```bash
 conda env create -f environment.yml
 conda activate mdo-niger
+python scripts/run_all.py                                  # build the data, once
 Rscript -e "shiny::runApp('app', launch.browser = TRUE)"
 ```
 
@@ -88,7 +91,7 @@ The processed tables and their columns are described in the [data dictionary](do
 ├── environment.yml          Miniforge environment: Python (processing) + R (dashboard)
 ├── app/                     Shiny dashboard, self-contained
 │   ├── app.R
-│   ├── data/                Tables the app reads (built by scripts/build_app_data.py)
+│   ├── data/                Tables the app reads (built locally, not in git)
 │   └── tests/test_app.R     Renders every output for several input sets
 ├── scripts/                 Python pipeline: raw files -> data/processed and app/data
 │   ├── run_all.py           Runs every step below in order
@@ -101,10 +104,11 @@ The processed tables and their columns are described in the [data dictionary](do
 │   ├── build_tables.py      Yearly, weekly, regional and district aggregates
 │   ├── build_geo.py         Shapefile -> regions.geojson
 │   └── build_app_data.py    app/data/, including meningitis thresholds
-├── data/
-│   ├── raw/                 Source workbooks and DHIS2 extract (unchanged)
-│   ├── shp/                 Region boundaries
-│   ├── processed/           Tidy tables (see docs/data_dictionary.md)
+├── data/                    Data folders are local only (see data/README.md)
+│   ├── README.md            Which files go where
+│   ├── raw/                 Source workbooks and DHIS2 extract (not in git)
+│   ├── shp/                 Region boundaries (not in git)
+│   ├── processed/           Tidy tables, built by the pipeline (not in git)
 │   └── data_inventory.csv   What each source file and sheet contributes
 └── docs/
     ├── data_dictionary.md
@@ -149,7 +153,7 @@ What the pipeline cleans:
 
 ## Deployment
 
-`app/` reads only `app/data/` (about 8 MB), so the folder can be deployed on its own:
+`app/` reads only `app/data/` (about 8 MB, built locally by the pipeline), so the folder can be deployed on its own once the data are built:
 
 - **shinyapps.io or Posit Connect:** `install.packages("rsconnect")`, then `rsconnect::deployApp("app")`.
 - **Shiny Server:** copy `app/` into the server's app directory.
@@ -158,6 +162,6 @@ The app loads no external fonts or map tiles and works offline. It shows data ag
 
 ## Data use
 
-The data belong to the Ministry of Public Health of Niger. This repository is private; check with the data owner before sharing the data or a deployed dashboard outside the project. Map boundaries do not imply official endorsement or acceptance.
+The data belong to the Ministry of Public Health of Niger and are never committed: `data/raw`, `data/shp`, `data/processed` and `app/data` are git-ignored. This repository holds only code, documentation and screenshots. Check with the data owner before sharing the data or a deployed dashboard outside the project. Map boundaries do not imply official endorsement or acceptance.
 
 Maintainer: [@Abson-dev](https://github.com/Abson-dev)

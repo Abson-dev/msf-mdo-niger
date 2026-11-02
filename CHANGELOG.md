@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 (2026-11-02)
+
+- Data removed from the repository and its history; `data/raw`, `data/shp`, `data/processed` and `app/data` are git-ignored. `data/README.md` lists the files to obtain and where to put them.
+- `run_app.bat` builds the dashboard data on first run when it is missing.
+
 ## 1.1.0 (2026-10-31)
 
 - Windows launchers: `run_app.bat` (start the dashboard) and `rebuild_data.bat` (rebuild the data and test the app).

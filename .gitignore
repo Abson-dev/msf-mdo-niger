@@ -1,3 +1,9 @@
+# Data are never committed (Ministry of Public Health of Niger). See data/README.md.
+data/raw/
+data/shp/
+data/processed/
+app/data/
+
 # R
 .Rhistory
 .RData

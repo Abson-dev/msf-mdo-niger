@@ -20,6 +20,17 @@ if errorlevel 1 (
 
 call "%CONDA%" activate %ENV_NAME% || goto :fail
 
+rem The data are not in the repository: build the app's tables from data\raw the first time
+if not exist "app\data\mdo_annual.csv" (
+    if not exist "data\raw\MDO 2024 S43.xls" (
+        echo The data files are missing. Put the source workbooks in data\raw and the shapefile in data\shp,
+        echo as listed in data\README.md, then run this file again.
+        goto :fail
+    )
+    echo First run: building the dashboard data from data\raw. This takes a few minutes.
+    python scripts\run_all.py || goto :fail
+)
+
 echo.
 echo Starting the dashboard. It opens in your browser; the address is shown below.
 echo Keep this window open while you use the app. Close it, or press Ctrl+C, to stop.
