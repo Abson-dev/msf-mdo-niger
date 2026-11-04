@@ -1,6 +1,6 @@
 # Niger notifiable disease surveillance (MDO / IDSR), 2015-2024
 #
-# Run from the project root:   conda activate mdo-niger
+# Double-click run_app.bat, or from the project root:   conda activate mdo-niger
 #                              Rscript -e "shiny::runApp('app', launch.browser = TRUE)"
 # The app is self-contained: it reads only app/data/, built by scripts/run_all.py.
 
@@ -65,48 +65,34 @@ disease_choices <- summary_tbl |> filter(total_cases > 0) |> mutate(label = en(d
 disease_choices <- setNames(disease_choices$disease, disease_choices$label)
 
 # ---- look ---------------------------------------------------------------------------------------
+# Same identity as the Ituri dashboard: www/style.css (shared), same theme, same chart colours.
 
-INK     <- "#1d2733"
-MUTED   <- "#5b6b7a"
-GRID    <- "#e6ebf0"
-PRIMARY <- "#0b5e7e"
-DARK    <- "#0b3c55"
-WARM    <- "#d98c10"
-DANGER  <- "#b03a2e"
-FONT    <- "'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
-SEQ     <- c("#eef4f7", "#9ec5d6", "#3d8db0", PRIMARY, "#06324a")
+for (f in list.files(file.path(dirname(DATA), "R"), pattern = "\\.R$", full.names = TRUE)) source(f, encoding = "UTF-8")
+check_auth()
+LOGO <- if (file.exists(file.path(dirname(DATA), "www", "logo_msf.png"))) "logo_msf.png"
+
+INK     <- "#17191c"
+MUTED   <- "#6b6d70"
+GRID    <- "#e1e0d9"
+AXIS    <- "#c3c2b7"
+PRIMARY <- "#2a78d6"
+DARK    <- "#184f95"
+LIGHT   <- "#a9cbf3"
+WARM    <- "#eb6834"
+AMBER   <- "#e5a50a"
+GREEN   <- "#1baf7a"
+DANGER  <- "#c62f2f"
+FONT    <- "'Segoe UI', system-ui, sans-serif"
+SEQ     <- c("#eaf2fc", "#86b6ef", PRIMARY, DARK, "#0d366b")
 # Okabe-Ito based, colour-blind safe, one colour per region everywhere
 REGION_COL <- c(Agadez = "#0072B2", Diffa = "#E69F00", Dosso = "#009E73", Maradi = "#CC79A7",
                 Niamey = "#56B4E9", Tahoua = "#D55E00", "Tillabéri" = "#999933", Zinder = "#332288")
 
 theme <- bs_theme(
-  version = 5, bg = "#ffffff", fg = INK, primary = PRIMARY, secondary = MUTED, success = "#2e7d4f",
-  warning = WARM, danger = DANGER, info = "#3d8db0",
-  base_font = font_collection("Segoe UI", "Helvetica Neue", "Arial", "sans-serif"),
-  heading_font = font_collection("Segoe UI Semibold", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"),
-  "border-radius" = "0.5rem", "card-border-color" = "#dfe5ea"
-) |> bs_add_rules("
-  .navbar { border-bottom: 3px solid #d98c10; }
-  .navbar-brand .brand-sub { font-weight: 400; opacity: .8; margin-left: .4rem; }
-  @media (max-width: 575.98px) { .navbar-brand .brand-sub { display: none; } }
-  .card-header { font-weight: 600; background: transparent; border-bottom: 1px solid #edf1f4; }
-  .card-note { color: #5b6b7a; font-size: .84rem; margin: 0 0 .35rem; }
-  .map-note { color: #7a8794; font-size: .74rem; margin: .25rem 0 0; }
-  .page-intro { max-width: 78ch; color: #3a4754; margin: .25rem 0 1rem; }
-  .page-intro h2 { font-size: 1.45rem; margin-bottom: .35rem; color: #1d2733; }
-  .bslib-value-box .value-box-title { font-size: .85rem; color: inherit; opacity: .8; }
-  .bslib-value-box .value-box-value { font-variant-numeric: tabular-nums; }
-  .bslib-value-box .vb-sub { font-size: .8rem; color: #5b6b7a; margin: 0; }
-  .delta-up { color: #b03a2e; font-weight: 600; }
-  .delta-down { color: #2e7d4f; font-weight: 600; }
-  .findings li { margin-bottom: .45rem; }
-  .status-chip { display: inline-block; padding: .05rem .5rem; border-radius: 1rem; font-size: .78rem; font-weight: 600; }
-  .legend-swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; vertical-align: -1px; margin: 0 .25rem 0 .75rem; }
-  .app-footer { border-top: 1px solid #dfe5ea; color: #5b6b7a; font-size: .78rem; padding: .75rem 1rem; }
-  table.dataTable td { font-variant-numeric: tabular-nums; }
-  .methods dt { margin-top: .6rem; }
-  .methods { max-width: 90ch; }
-")
+  version = 5, primary = "#c40000", secondary = "#4d4f53", bg = "#ffffff", fg = INK,
+  base_font = font_collection("Segoe UI", "system-ui", "-apple-system", "sans-serif"),
+  "font-size-base" = "0.92rem", "border-radius" = "0.5rem"
+)
 
 num <- function(x, d = 0) ifelse(is.na(x), "–", comma(x, accuracy = 10^-d))
 pct <- function(x, d = 1) ifelse(is.na(x), "–", paste0(number(x, accuracy = 10^-d), "%"))
@@ -118,8 +104,8 @@ polish <- function(p, filename = "niger-mdo-chart", legend = TRUE) {
   p |>
     layout(font = list(family = FONT, size = 12, color = INK), separators = ".,",
            paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)",
-           hoverlabel = list(bgcolor = "white", bordercolor = "#c8d1da", font = list(family = FONT, size = 12, color = INK)),
-           xaxis = list(gridcolor = GRID, zeroline = FALSE, linecolor = "#c8d1da", tickfont = list(color = MUTED)),
+           hoverlabel = list(bgcolor = "white", bordercolor = AXIS, font = list(family = FONT, size = 12, color = INK)),
+           xaxis = list(gridcolor = GRID, zeroline = FALSE, linecolor = AXIS, tickfont = list(color = MUTED)),
            yaxis = list(gridcolor = GRID, zeroline = FALSE, tickfont = list(color = MUTED), separatethousands = TRUE),
            legend = list(orientation = "h", y = -0.18, font = list(size = 11)), showlegend = legend,
            margin = list(l = 10, r = 10, t = 10, b = 10)) |>
@@ -130,13 +116,13 @@ polish <- function(p, filename = "niger-mdo-chart", legend = TRUE) {
 region_map <- function(df, value, label, fmt = num, filename = "niger-map", zmin = 0, zmax = NULL) {
   m <- tibble(region = region_names) |> left_join(df, by = "region")
   z <- m[[value]]
+  if (is.null(zmax)) zmax <- max(z, zmin + 1, na.rm = TRUE)
   # white labels on the darker half of the colour scale
-  zmax <- max(z, 0, na.rm = TRUE)
-  dark <- setNames(!is.na(z) & zmax > 0 & z / zmax > 0.55, m$region)
+  dark <- setNames(!is.na(z) & (z - zmin) / (zmax - zmin) > 0.55, m$region)
+  dark["Niamey"] <- dark["Tillabéri"]   # its label sits over Tillabéri (see REGION_LABEL_POS)
   label_col <- ifelse(dark[REGION_LABEL_POS$region], "#ffffff", INK)
   plot_ly(type = "choropleth", geojson = regions_geo, featureidkey = "properties.region",
-          locations = m$region, z = ifelse(is.na(z), zmin, z), zmin = zmin,
-          zmax = if (is.null(zmax)) max(z, zmin + 1, na.rm = TRUE) else zmax,
+          locations = m$region, z = ifelse(is.na(z), zmin, z), zmin = zmin, zmax = zmax,
           colorscale = lapply(seq_along(SEQ), function(i) list((i - 1) / (length(SEQ) - 1), SEQ[i])),
           text = paste0("<b>", m$region, "</b><br>", label, ": ", fmt(z)), hoverinfo = "text",
           marker = list(line = list(color = "white", width = 1.2)),
@@ -159,6 +145,8 @@ REGION_LABEL_POS <- bind_rows(lapply(regions_geo$features, function(f) {
 # Niamey is an enclave inside Tillabéri: move the two labels apart
 REGION_LABEL_POS$lat[REGION_LABEL_POS$region == "Tillabéri"] <- REGION_LABEL_POS$lat[REGION_LABEL_POS$region == "Tillabéri"] + 1
 REGION_LABEL_POS$lat[REGION_LABEL_POS$region == "Niamey"] <- REGION_LABEL_POS$lat[REGION_LABEL_POS$region == "Niamey"] - 0.45
+# the vertex average falls on Diffa's southern edge, which clips its label
+REGION_LABEL_POS$lat[REGION_LABEL_POS$region == "Diffa"] <- REGION_LABEL_POS$lat[REGION_LABEL_POS$region == "Diffa"] + 1.5
 
 MAP_NOTE <- p(class = "map-note",
               "Boundaries: IGNN 2023 (admin level 1). The boundaries and names shown do not imply official endorsement or acceptance.")
@@ -169,7 +157,7 @@ render_table <- function(expr) DT::renderDT(substitute(expr), server = FALSE, en
 dt <- function(df, filename = "niger-mdo", page = 12, escape = TRUE, ...) {
   datatable(df, rownames = FALSE, class = "compact hover stripe", extensions = "Buttons", escape = escape,
             options = list(pageLength = page, scrollX = TRUE, dom = "Bfrtip", autoWidth = FALSE,
-                           buttons = list(list(extend = "csv", filename = filename, text = "Download CSV", className = "btn btn-sm btn-outline-secondary"), list(extend = "excel", filename = filename, text = "Excel", className = "btn btn-sm btn-outline-secondary")),
+                           buttons = list(list(extend = "csv", filename = filename, text = "Download CSV", className = "btn btn-sm btn-outline-primary"), list(extend = "excel", filename = filename, text = "Excel", className = "btn btn-sm btn-outline-primary")),
                            language = list(search = "Filter:"), ...))
 }
 
@@ -191,25 +179,14 @@ card_plot <- function(title, output, note = NULL, height = "360px", footer = NUL
 
 # ---- overview content (static: computed once from the data) ------------------------------------
 
-kpi_box <- function(key) {
+kpi_box <- function(key, icon, tone) {
   a <- annual |> filter(disease == key)
   cur <- a |> filter(year == LATEST_FULL)
   prev <- a |> filter(year == LATEST_FULL - 1)
   ch <- if (nrow(prev) && prev$cases > 0) (cur$cases - prev$cases) / prev$cases else NA
-  spark <- plot_ly(a, x = ~year, y = ~cases, type = "scatter", mode = "lines", fill = "tozeroy",
-                   line = list(color = "rgba(255,255,255,.9)", width = 2), fillcolor = "rgba(255,255,255,.18)",
-                   hoverinfo = "text", text = ~paste0(year, ": ", num(cases))) |>
-    layout(xaxis = list(visible = FALSE), yaxis = list(visible = FALSE), margin = list(l = 0, r = 0, t = 0, b = 0),
-           paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)", hovermode = "x") |>
-    config(displayModeBar = FALSE)
-  spark$height <- 60
-  value_box(
-    title = paste0(en(key), ", ", LATEST_FULL), value = num(cur$cases),
-    p(class = "mb-0", if (is.na(ch)) "" else sprintf("%s%s vs %d", ifelse(ch >= 0, "+", "−"), percent(abs(ch), 1), LATEST_FULL - 1)),
-    p(class = "mb-0 small", paste0(num(cur$deaths), " deaths")),
-    showcase = spark, showcase_layout = "bottom", full_screen = FALSE,
-    theme = value_box_theme(bg = DARK, fg = "#ffffff")
-  )
+  kpi(paste0(en(key), ", ", LATEST_FULL), num(cur$cases),
+      tagList(if (!is.na(ch)) change_tag(ch, sprintf("vs %d", LATEST_FULL - 1)), br(), paste0(num(cur$deaths), " deaths")),
+      icon, tone)
 }
 
 peak <- function(key) annual |> filter(disease == key) |> slice_max(cases, n = 1, with_ties = FALSE)
@@ -221,19 +198,20 @@ key_findings <- local({
   mal_conf <- annual |> filter(disease == "Paludisme confirmé", year == LATEST_FULL)
   epi24 <- men_epi_years$n[men_epi_years$year == 2024]
   epi_between <- max(c(0, men_epi_years$n[men_epi_years$year > 2015 & men_epi_years$year < 2024]))
-  tags$ul(class = "findings",
-    tags$li(tags$b("Malaria dominates the caseload. "),
+  div(class = "pile-alertes",
+    finding("Malaria dominates the caseload",
             sprintf("Suspected malaria rose from %s cases in %d to %s in %d; %s cases were confirmed in %d.",
                     num(mal$cases[mal$year == min(mal$year)]), min(mal$year), num(mal$cases[mal$year == LATEST_FULL]),
                     LATEST_FULL, num(mal_conf$cases), LATEST_FULL)),
-    tags$li(tags$b("Meningitis: "), sprintf("the %d epidemic reached %s cases and %s deaths. ", mg$year, num(mg$cases), num(mg$deaths)),
-            if (length(epi24)) sprintf("In 2024 (to week %d), %d districts crossed the WHO epidemic threshold%s.",
-                                       LAST_WEEK_2024, epi24, if (epi24 > epi_between) ", the most since 2015" else "")),
-    tags$li(tags$b("Measles "), sprintf("peaked in %d with %s cases, after large outbreaks in 2019 and 2021.", m$year, num(m$cases))),
-    tags$li(tags$b("Diphtheria re-emerged: "),
-            sprintf("under 60 cases a year until 2021, then %s cases and %s deaths in %d.",
+    finding("Meningitis",
+            paste0(sprintf("The %d epidemic reached %s cases and %s deaths. ", mg$year, num(mg$cases), num(mg$deaths)),
+                   if (length(epi24)) sprintf("In 2024 (to week %d), %d districts crossed the WHO epidemic threshold%s.",
+                                              LAST_WEEK_2024, epi24, if (epi24 > epi_between) ", the most since 2015" else ""))),
+    finding("Measles", sprintf("Peaked in %d with %s cases, after large outbreaks in 2019 and 2021.", m$year, num(m$cases))),
+    finding("Diphtheria re-emerged",
+            sprintf("Under 60 cases a year until 2021, then %s cases and %s deaths in %d.",
                     num(dip$cases[dip$year == LATEST_FULL]), num(dip$deaths[dip$year == LATEST_FULL]), LATEST_FULL)),
-    tags$li(tags$b("Cholera "), sprintf("outbreaks occurred in 2018, %d (%s cases, %s deaths) and 2024.", ch$year, num(ch$cases), num(ch$deaths)))
+    finding("Cholera", sprintf("Outbreaks occurred in 2018, %d (%s cases, %s deaths) and 2024.", ch$year, num(ch$cases), num(ch$deaths)))
   )
 })
 
@@ -245,64 +223,89 @@ overview_table <- summary_tbl |>
 
 # ---- UI -----------------------------------------------------------------------------------------
 
-intro <- function(title, ...) div(class = "page-intro", h2(title), p(...))
+period_chip <- div(class = "puce-semaine", ico("calendar-days"), strong("2015–2024"), span(sprintf("to week %d of 2024", LAST_WEEK_2024)))
+# controls appear in the shared sidebar only on the tab they belong to
+for_tab <- function(tab, ...) conditionalPanel(sprintf("input.nav == '%s'", tab), ...)
+dhis_choices <- local({ k <- unique(dhis_cases$disease); k <- k[order(en(k))]; setNames(k, en(k)) })
 
-ui <- page_navbar(
+app_ui <- page_navbar(
   id = "nav",
-  title =tags$span("Niger", tags$span(class = "brand-sub", "Notifiable disease surveillance 2015–2024")),
-  window_title = "Niger notifiable disease surveillance 2015–2024",
+  title = brand(LOGO),
+  window_title = "Niger · Notifiable disease surveillance",
   theme = theme,
-  navbar_options = navbar_options(bg = DARK, theme = "dark"),
   fillable = FALSE,
-  header = tagList(
-    useBusyIndicators(),
-    # a tab opened from a link inside the "Data & methods" menu would otherwise leave the menu open
-    tags$script(HTML("$(function() { Shiny.addCustomMessageHandler('close-menus', function(x) {
-      document.querySelectorAll('.navbar .dropdown-menu.show, .navbar .dropdown-toggle.show')
-        .forEach(function(el) { el.classList.remove('show'); el.setAttribute && el.removeAttribute('aria-expanded'); });
-    }); });"))
-  ),
-  footer = div(class = "app-footer",
-               "Source: Ministry of Public Health of Niger, weekly notifiable disease reports (MDO/IDSR) 2015 to week ",
-               LAST_WEEK_2024, " 2024, and DHIS2 extract of 18 September 2024. Aggregated to health district; no individual data."),
-
-  nav_panel(
-    "Overview",
-    intro("Ten years of weekly disease surveillance in Niger",
-          sprintf("Cases and deaths for %d notifiable diseases reported every week by Niger's %d health districts, %d to week %d of 2024.",
-                  n_distinct(annual$disease), max(years_tbl$districts), min(ALL_YEARS), LAST_WEEK_2024)),
-    do.call(layout_column_wrap, c(list(width = "240px"),
-                                  lapply(c("Paludisme confirmé", "Rougeole", "Méningite", "Diphtérie"), kpi_box))),
-    layout_columns(
-      col_widths = c(5, 7),
-      card(card_header("Key findings"), card_body(key_findings)),
-      card_plot("Cases per year, epidemic-prone diseases", "overview_trends",
-                "Each panel has its own scale. Lighter bar: 2024, partial year.", height = "400px")
+  header = tagList(tags$head(tags$link(rel = "stylesheet", href = "style.css"), tags$link(rel = "stylesheet", href = "mdo.css")),
+                   useBusyIndicators()),
+  sidebar = sidebar(
+    width = 250, gap = "0.5rem",
+    # On a narrow screen the controls stay available above the content
+    open = list(desktop = "open", mobile = "always-above"),
+    for_tab("Disease explorer",
+      selectInput("disease", "Disease", disease_choices, selected = "Rougeole"),
+      selectInput("year", "Year", rev(ALL_YEARS), selected = LATEST_FULL),
+      radioButtons("metric", "Map shows", c("Cases per 100,000" = "incidence_per_100k", "Cases" = "cases", "Deaths" = "deaths")),
+      uiOutput("disease_caveat"),
+      downloadButton("dl_disease", "District data (CSV)", class = "btn-primary"),
+      hr()
     ),
-    card(card_header("All notifiable diseases"),
-         card_body(p(class = "card-note", "Totals over the years each disease is in the weekly reports. Click a column to sort."),
-                   DTOutput("overview_table", fill = FALSE)))
+    for_tab("Meningitis thresholds",
+      selectInput("men_year", "Year", rev(ALL_YEARS), selected = 2024),
+      div(class = "note", strong("WHO weekly thresholds"), " for districts of 30,000 people or more: ",
+          strong("alert"), " 3 cases per 100,000, ", strong("epidemic"), " 10 cases per 100,000. Smaller districts: 2 and 5 cases."),
+      div(class = "note", "Applied here to whole health districts, after the fact. WHO recommends applying them at health-area level, so district-level crossings understate local outbreaks."),
+      hr()
+    ),
+    for_tab("Reporting performance",
+      selectInput("rep_year", "Year", rev(2015:2023), selected = 2023),
+      div(class = "note", strong("Timeliness: "), "share of weekly district reports received on time. ",
+          strong("Completeness: "), "share received at all."),
+      hr()
+    ),
+    for_tab("Maternal deaths",
+      selectInput("mat_year", "Year", rev(2015:2021), selected = 2021),
+      div(class = "note", "Investigated: deaths reviewed by a maternal death audit. Not recorded in 2015."),
+      hr()
+    ),
+    for_tab("DHIS2 2024",
+      selectInput("dh_disease", "Disease", dhis_choices, selected = "Choléra"),
+      hr()
+    ),
+    div(class = "note",
+        strong("Source: "), "Ministry of Public Health of Niger, weekly MDO/IDSR reports", br(),
+        strong("Data to: "), sprintf("week %d of 2024", LAST_WEEK_2024), br(),
+        strong("Level: "), "health district; no individual data")
   ),
 
   nav_panel(
-    "Disease explorer",
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 280,
-        selectInput("disease", "Disease", disease_choices, selected = "Rougeole"),
-        selectInput("year", "Year", rev(ALL_YEARS), selected = LATEST_FULL),
-        radioButtons("metric", "Map shows", c("Cases per 100,000" = "incidence_per_100k", "Cases" = "cases",
-                                               "Deaths" = "deaths")),
-        hr(),
-        p(class = "card-note", "Incidence uses the district populations listed in each year's reports."),
-        uiOutput("disease_caveat"),
-        downloadButton("dl_disease", "Download district data (CSV)", class = "btn-sm btn-outline-primary")
+    "Overview", icon = ico("gauge-high"),
+    page_body(
+      page_head("Overview",
+                sprintf("Cases and deaths for %d notifiable diseases, reported every week by Niger's %d health districts",
+                        n_distinct(annual$disease), max(years_tbl$districts)),
+                "gauge-high", period_chip),
+      kpi_row(kpi_box("Paludisme confirmé", "mosquito", "bleu"), kpi_box("Rougeole", "virus", "vert"),
+              kpi_box("Méningite", "brain", "orange"), kpi_box("Diphtérie", "lungs", "rouge")),
+      layout_columns(
+        col_widths = c(5, 7),
+        card(card_header("Key findings"), card_body(key_findings)),
+        card_plot("Cases per year, epidemic-prone diseases", "overview_trends",
+                  "Each panel has its own scale. Lighter bar: 2024, partial year.", height = "400px")
       ),
-      layout_column_wrap(width = "200px",
-        value_box("Cases", textOutput("vb_cases"), uiOutput("vb_cases_sub")),
-        value_box("Deaths", textOutput("vb_deaths"), uiOutput("vb_deaths_sub")),
-        value_box("Case fatality", textOutput("vb_cfr"), p(class = "vb-sub", "Deaths ÷ cases")),
-        value_box("Cases per 100,000", textOutput("vb_inc"), uiOutput("vb_inc_sub"))
+      card(card_header("All notifiable diseases"),
+           card_body(p(class = "card-note", "Totals over the years each disease is in the weekly reports. Click a column to sort."),
+                     DTOutput("overview_table", fill = FALSE)))
+    )
+  ),
+
+  nav_panel(
+    "Disease explorer", icon = ico("wave-square"),
+    page_body(
+      page_head("Disease explorer", "Trend, season and geography of one disease in the selected year", "wave-square"),
+      kpi_row(
+        kpi("Cases", textOutput("vb_cases"), uiOutput("vb_cases_sub"), "virus", "bleu"),
+        kpi("Deaths", textOutput("vb_deaths"), uiOutput("vb_deaths_sub"), "heart-pulse", "rouge"),
+        kpi("Case fatality", textOutput("vb_cfr"), "Deaths ÷ cases", "percent", "ambre"),
+        kpi("Cases per 100,000", textOutput("vb_inc"), uiOutput("vb_inc_sub"), "users", "ardoise")
       ),
       layout_column_wrap(width = "420px",
         card_plot("Weekly cases compared with previous years", "channel",
@@ -321,23 +324,14 @@ ui <- page_navbar(
   ),
 
   nav_panel(
-    "Meningitis thresholds",
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 280,
-        selectInput("men_year", "Year", rev(ALL_YEARS), selected = 2024),
-        hr(),
-        p(class = "card-note", tags$b("WHO weekly thresholds"), " for districts of 30,000 people or more: ",
-          tags$b("alert"), " 3 cases per 100,000, ", tags$b("epidemic"), " 10 cases per 100,000. Smaller districts: 2 and 5 cases."),
-        p(class = "card-note", "Applied here to whole health districts, after the fact. WHO recommends applying them at health-area level, so district-level crossings understate local outbreaks.")
-      ),
-      intro("Districts crossing the meningitis alert and epidemic thresholds",
-            "Weekly district attack rates compared with WHO thresholds for the African meningitis belt."),
-      layout_column_wrap(width = "200px",
-        value_box("Districts at epidemic level", textOutput("men_epi_d"), p(class = "vb-sub", "at least one week")),
-        value_box("Districts at alert level", textOutput("men_alert_d"), p(class = "vb-sub", "at least one week")),
-        value_box("District-weeks at epidemic level", textOutput("men_epi_w")),
-        value_box("Highest weekly rate", textOutput("men_peak"), uiOutput("men_peak_sub"))
+    "Meningitis thresholds", icon = ico("triangle-exclamation"),
+    page_body(
+      page_head("Meningitis thresholds", "Weekly district attack rates compared with WHO thresholds for the African meningitis belt", "triangle-exclamation"),
+      kpi_row(
+        kpi("Districts at epidemic level", textOutput("men_epi_d"), "at least one week", "triangle-exclamation", "rouge"),
+        kpi("Districts at alert level", textOutput("men_alert_d"), "at least one week", "bell", "ambre"),
+        kpi("District-weeks at epidemic level", textOutput("men_epi_w"), "selected year", "calendar-week", "orange"),
+        kpi("Highest weekly rate", textOutput("men_peak"), uiOutput("men_peak_sub"), "arrow-trend-up", "ardoise")
       ),
       layout_column_wrap(width = "420px",
         card_plot("Districts reaching each threshold, by year", "men_years",
@@ -345,61 +339,48 @@ ui <- page_navbar(
         card_plot("Weekly meningitis cases, selected year", "men_curve")
       ),
       card_plot("Weekly status of districts that reached the alert threshold", "men_heat",
-                tagList(span(class = "legend-swatch", style = "background:#f3c86b"), "Alert",
+                tagList(span(class = "legend-swatch", style = paste0("background:", AMBER)), "Alert",
                         span(class = "legend-swatch", style = paste0("background:", DANGER)), "Epidemic",
-                        span(class = "legend-swatch", style = "background:#edf1f4"), "Below alert"),
+                        span(class = "legend-swatch", style = "background:#eef0f3"), "Below alert"),
                 height = NULL),
       card(card_header("Districts that reached the alert threshold"), card_body(DTOutput("men_table", fill = FALSE)))
     )
   ),
 
   nav_panel(
-    "Reporting performance",
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 280,
-        selectInput("rep_year", "Year", rev(2015:2023), selected = 2023),
-        hr(),
-        p(class = "card-note", tags$b("Timeliness"), ": share of weekly district reports received on time. ",
-          tags$b("Completeness"), ": share received at all."),
-        p(class = "card-note", "2024 uses different measures (cumulative percentages and DHIS2 facility completeness), shown at the bottom.")
-      ),
-      layout_column_wrap(width = "200px",
-        value_box("Timeliness", textOutput("rep_t"), uiOutput("rep_t_sub")),
-        value_box("Completeness", textOutput("rep_c"), uiOutput("rep_c_sub")),
-        value_box("Reports not received", textOutput("rep_n"), p(class = "vb-sub", "district-weeks"))
+    "Reporting performance", icon = ico("clipboard-check"),
+    page_body(
+      page_head("Reporting performance", "Timeliness and completeness of weekly district reports", "clipboard-check"),
+      kpi_row(
+        kpi("Timeliness", textOutput("rep_t"), uiOutput("rep_t_sub"), "clock", "bleu"),
+        kpi("Completeness", textOutput("rep_c"), uiOutput("rep_c_sub"), "circle-check", "vert"),
+        kpi("Reports not received", textOutput("rep_n"), "district-weeks", "circle-xmark", "rouge")
       ),
       layout_column_wrap(width = "420px",
         card_plot("National timeliness and completeness by year", "rep_trend"),
         card_plot("Timeliness by region", "rep_map", "Selected year. Colour scale runs from 80% to 100%.", footer = MAP_NOTE)
       ),
       card_plot("Weekly report status by district", "rep_heat",
-                tagList(span(class = "legend-swatch", style = "background:#2e7d4f"), "On time",
-                        span(class = "legend-swatch", style = paste0("background:", WARM)), "Late",
+                tagList(span(class = "legend-swatch", style = paste0("background:", GREEN)), "On time",
+                        span(class = "legend-swatch", style = paste0("background:", AMBER)), "Late",
                         span(class = "legend-swatch", style = paste0("background:", DANGER)), "Not received"),
                 height = NULL),
       layout_column_wrap(width = "420px",
         card(card_header(sprintf("2024: cumulative completeness and timeliness to week %d", LAST_WEEK_2024)),
              card_body(DTOutput("rep_2024", fill = FALSE))),
         card_plot("2024: weekly facility completeness in DHIS2, by region", "rep_dhis",
-                  "Average of district percentages, weeks 1–37.")
+                  "2024 uses different measures from the years above. Average of district percentages, weeks 1–37.")
       )
     )
   ),
 
   nav_panel(
-    "Maternal deaths",
-    layout_sidebar(
-      sidebar = sidebar(
-        width = 280,
-        selectInput("mat_year", "Year", rev(2015:2021), selected = 2021),
-        hr(),
-        p(class = "card-note", "Maternal deaths notified through weekly surveillance, 2015–2021. Reports from 2022 onwards have no maternal-death section."),
-        p(class = "card-note", "Investigated: deaths reviewed by a maternal death audit. Not recorded in 2015.")
-      ),
-      layout_column_wrap(width = "200px",
-        value_box("Deaths notified", textOutput("mat_n")),
-        value_box("Deaths investigated", textOutput("mat_i"), uiOutput("mat_i_sub"))
+    "Maternal deaths", icon = ico("person-pregnant"),
+    page_body(
+      page_head("Maternal deaths", "Deaths notified through weekly surveillance, 2015–2021; reports from 2022 onwards have no maternal-death section", "person-pregnant"),
+      kpi_row(
+        kpi("Deaths notified", textOutput("mat_n"), "selected year", "heart-pulse", "rouge"),
+        kpi("Deaths investigated", textOutput("mat_i"), uiOutput("mat_i_sub"), "magnifying-glass", "bleu")
       ),
       layout_column_wrap(width = "420px",
         card_plot("Deaths notified and investigated per year", "mat_trend", "Bars: deaths. Line: share investigated (%), right axis."),
@@ -410,76 +391,73 @@ ui <- page_navbar(
     )
   ),
 
-  nav_menu(
-    "Data & methods",
-    nav_panel(
-      "DHIS2 2024 comparison",
-      layout_sidebar(
-        sidebar = sidebar(width = 280,
-                          selectInput("dh_disease", "Disease", local({ k <- unique(dhis_cases$disease); k <- k[order(en(k))]; setNames(k, en(k)) }),
-                                      selected = "Choléra"),
-                          hr(),
-                          p(class = "card-note", "The DHIS2 extract of 18 September 2024 covers weeks 1–37. The weekly reports (used everywhere else) are compared with it over the same weeks.")),
-        card(card_header("Weeks 1–37 of 2024: weekly reports vs DHIS2"), card_body(DTOutput("dh_table", fill = FALSE))),
-        layout_column_wrap(width = "420px",
-          card_plot("Weekly national cases, both sources", "dh_weekly"),
-          card_plot("DHIS2 cases by region, weeks 1–37", "dh_map", footer = MAP_NOTE)
-        )
+  nav_panel(
+    "DHIS2 2024", icon = ico("code-compare"),
+    page_body(
+      page_head("DHIS2 2024", "The DHIS2 extract of 18 September 2024 (weeks 1–37) compared with the weekly reports used everywhere else", "code-compare"),
+      card(card_header("Weeks 1–37 of 2024: weekly reports vs DHIS2"), card_body(DTOutput("dh_table", fill = FALSE))),
+      layout_column_wrap(width = "420px",
+        card_plot("Weekly national cases, both sources", "dh_weekly"),
+        card_plot("DHIS2 cases by region, weeks 1–37", "dh_map", footer = MAP_NOTE)
       )
-    ),
-    nav_panel(
-      "Sources and checks",
-      intro("Where the numbers come from",
-            "Every sheet of every source file is either used in this dashboard or used to check it."),
+    )
+  ),
+
+  nav_panel(
+    "Sources and checks", icon = ico("table-list"),
+    page_body(
+      page_head("Sources and checks", "Every sheet of every source file is either used in this dashboard or used to check it", "table-list"),
       card(card_header("Source files"), card_body(DTOutput("inventory", fill = FALSE))),
       card(card_header("Cross-checks against totals written in the source files"),
            card_body(p(class = "card-note", "'Parsed' is this dashboard's figure; 'reference' is the total in the source file. Where they differ, the source's own total row is usually the error: in the 2019 influenza sheet, districts add up to 14 but the total cell says 127."),
                      DTOutput("checks", fill = FALSE)))
-    ),
-    nav_panel(
-      "Methods and definitions",
-      div(class = "methods",
-          intro("Methods and definitions", "How the dashboard figures are built, and what to keep in mind when reading them."),
-          card(card_body(
-            tags$dl(
-              tags$dt("Data"), tags$dd("Weekly notifiable disease reports (MDO, Integrated Disease Surveillance and Response) compiled by the Ministry of Public Health of Niger: one workbook per year, one sheet per disease, one row per health district. Weekly cases and deaths were extracted from every sheet and checked against the totals written in the files."),
-              tags$dt("Cases per 100,000"), tags$dd("Cases ÷ district population × 100,000, using the population figures in each year's reports. 2024 rates cover a partial year."),
-              tags$dt("Case fatality"), tags$dd("Deaths ÷ cases among reported cases. Deaths can be reported in a different week than cases."),
-              tags$dt("Comparison with previous years"), tags$dd("For each week, the band spans the lowest and highest weekly count of the other complete years (2015–2023) in which the disease was reported; the dashed line is their median."),
-              tags$dt("Meningitis thresholds"), tags$dd("WHO (2014), Meningitis outbreak response in sub-Saharan Africa: for populations of 30,000 or more, alert 3 and epidemic 10 cases per 100,000 per week; below 30,000, alert 2 and epidemic 5 cases per week. Applied here to whole districts."),
-              tags$dt("Timeliness and completeness"), tags$dd("2015–2023: each district's weekly report is recorded as on time, late or not received; timeliness is the share on time, completeness the share received. 2024: cumulative percentages from the weekly reports, and DHIS2 facility completeness.")
-            ),
-            h5("Caveats", class = "mt-3"),
-            tags$ul(
-              tags$li(sprintf("The 2024 weekly reports stop at week %d; the DHIS2 extract at week 37.", LAST_WEEK_2024)),
-              tags$li("Health districts were reorganised in 2017 (44–48 districts before, 72 after). Regions are comparable across all years; districts only from 2017."),
-              tags$li("Confirmed malaria 2015–2020 is the number of positive rapid tests or slides; from 2021 it is the confirmed-case count. Malaria deaths are recorded under suspected malaria until 2020 and under confirmed malaria from 2021."),
-              tags$li("Suspected malaria in 2018 looks incomplete: it is lower than confirmed malaria that year."),
-              tags$li("Malnutrition and maternal deaths are reported until 2021; malaria in pregnant women is missing in 2020–2021; COVID-19 starts in 2021 and dengue in 2023. MERS-CoV, SARS and Guinea worm have no reported cases."),
-              tags$li("Viral haemorrhagic fever cases in the 2024 weekly reports appear as Rift Valley fever in DHIS2.")
-            ),
-            h5("Map", class = "mt-3"),
-            p("Region boundaries from the Institut Géographique National du Niger (2023), admin level 1. The boundaries and names shown and the designations used do not imply official endorsement or acceptance.")
-          ))
-      )
     )
   ),
-  nav_spacer()
+
+  nav_panel(
+    "Methods", icon = ico("book-open"),
+    page_body(
+      page_head("Methods and definitions", "How the figures are built, and what to keep in mind when reading them", "book-open"),
+      card(card_body(class = "methods",
+        tags$dl(
+          tags$dt("Data"), tags$dd("Weekly notifiable disease reports (MDO, Integrated Disease Surveillance and Response) compiled by the Ministry of Public Health of Niger: one workbook per year, one sheet per disease, one row per health district. Weekly cases and deaths were extracted from every sheet and checked against the totals written in the files."),
+          tags$dt("Cases per 100,000"), tags$dd("Cases ÷ total district population × 100,000, using the population on the measles sheet of each year's reports. The disease sheets' own population columns are not consistent (some use target populations). 2024 rates cover a partial year."),
+          tags$dt("Case fatality"), tags$dd("Deaths ÷ cases among reported cases. Deaths can be reported in a different week than cases."),
+          tags$dt("Comparison with previous years"), tags$dd("For each week, the band spans the lowest and highest weekly count of the other complete years (2015–2023) in which the disease was reported; the dashed line is their median."),
+          tags$dt("Meningitis thresholds"), tags$dd("WHO (2014), Meningitis outbreak response in sub-Saharan Africa: for populations of 30,000 or more, alert 3 and epidemic 10 cases per 100,000 per week; below 30,000, alert 2 and epidemic 5 cases per week. Applied here to whole districts."),
+          tags$dt("Timeliness and completeness"), tags$dd("2015–2023: each district's weekly report is recorded as on time, late or not received; timeliness is the share on time, completeness the share received. 2024: cumulative percentages from the weekly reports, and DHIS2 facility completeness.")
+        ),
+        h3("Caveats"),
+        tags$ul(
+          tags$li(sprintf("The 2024 weekly reports stop at week %d; the DHIS2 extract at week 37.", LAST_WEEK_2024)),
+          tags$li("Health districts were reorganised in 2017 (44–48 districts before, 72 after). Regions are comparable across all years; districts only from 2017."),
+          tags$li("Confirmed malaria 2015–2020 is the number of positive rapid tests or slides; from 2021 it is the confirmed-case count. Malaria deaths are recorded under suspected malaria until 2020 and under confirmed malaria from 2021."),
+          tags$li("Suspected malaria in 2018 looks incomplete: it is lower than confirmed malaria that year."),
+          tags$li("Malnutrition and maternal deaths are reported until 2021; malaria in pregnant women is missing in 2020–2021; COVID-19 starts in 2021 and dengue in 2023. MERS-CoV, SARS and Guinea worm have no reported cases."),
+          tags$li("Viral haemorrhagic fever cases in the 2024 weekly reports appear as Rift Valley fever in DHIS2.")
+        ),
+        h3("Map"),
+        p("Region boundaries from the Institut Géographique National du Niger (2023), admin level 1. The boundaries and names shown and the designations used do not imply official endorsement or acceptance.")
+      ))
+    )
+  )
 )
+
+ui <- protect_ui(app_ui, logo = LOGO)
 
 # ---- server -------------------------------------------------------------------------------------
 
 server <- function(input, output, session) {
 
+  protect_server()
+
   # deep links: ?tab=Meningitis%20thresholds opens that tab; the address follows the open tab
   observeEvent(session$clientData$url_search, {
     tab <- parseQueryString(session$clientData$url_search)$tab
-    if (!is.null(tab)) {
-      nav_select("nav", tab)
-      session$onFlushed(function() session$sendCustomMessage("close-menus", list()))
-    }
+    if (!is.null(tab)) nav_select("nav", tab)
   }, once = TRUE)
-  observeEvent(input$nav, updateQueryString(paste0("?tab=", utils::URLencode(input$nav)), mode = "replace"),
+  # only the tab: url_search still holds the login token, which must not return to the address bar
+  observeEvent(input$nav, updateQueryString(paste0("?tab=", utils::URLencode(input$nav, reserved = TRUE)), mode = "replace"),
                ignoreInit = TRUE)
 
   # Overview ---------------------------------------------------------------------------------------
@@ -496,7 +474,7 @@ server <- function(input, output, session) {
     p <- ggplot(d, aes(year, cases, fill = partial_year,
                        text = paste0("<b>", label, " ", year, "</b><br>Cases: ", num(cases), "<br>Deaths: ", num(deaths)))) +
       geom_col(width = 0.75) +
-      scale_fill_manual(values = c(`FALSE` = PRIMARY, `TRUE` = "#9ec5d6"), guide = "none") +
+      scale_fill_manual(values = c(`FALSE` = PRIMARY, `TRUE` = LIGHT), guide = "none") +
       scale_y_continuous(labels = label_comma(), expand = expansion(mult = c(0, 0.08))) +
       scale_x_continuous(breaks = c(2015, 2018, 2021, 2024)) +
       facet_wrap(~label, scales = "free_y", ncol = 3) +
@@ -516,20 +494,19 @@ server <- function(input, output, session) {
                      summarise(cases = sum(cases), deaths = sum(deaths), n = n()))
 
   delta <- function(now, before, label) {
-    if (is.na(before) || before == 0 || length(now) == 0) return(p(class = "vb-sub", "No comparison"))
+    if (is.na(before) || before == 0 || length(now) == 0) return(p(class = "kpi-detail", "No comparison"))
     ch <- (now - before) / before
-    p(class = "vb-sub", span(class = if (ch > 0) "delta-up" else "delta-down",
-                             sprintf("%s%s", ifelse(ch >= 0, "+", "−"), percent(abs(ch), 1))), " ", label)
+    p(class = "kpi-detail", change_tag(ch, label))
   }
   cmp_label <- reactive(if (wk_cov() < 52) sprintf("vs %d, weeks 1–%d", sel()$y - 1, wk_cov()) else sprintf("vs %d", sel()$y - 1))
 
   output$vb_cases <- renderText(if (nrow(cur())) num(cur()$cases) else "Not reported")
-  output$vb_cases_sub <- renderUI(if (nrow(cur()) && prev()$n > 0) delta(cur()$cases, prev()$cases, cmp_label()) else p(class = "vb-sub", "No comparison"))
+  output$vb_cases_sub <- renderUI(if (nrow(cur()) && prev()$n > 0) delta(cur()$cases, prev()$cases, cmp_label()) else p(class = "kpi-detail", "No comparison"))
   output$vb_deaths <- renderText(if (nrow(cur())) num(cur()$deaths) else "–")
-  output$vb_deaths_sub <- renderUI(if (nrow(cur()) && prev()$n > 0) delta(cur()$deaths, prev()$deaths, cmp_label()) else p(class = "vb-sub", "No comparison"))
+  output$vb_deaths_sub <- renderUI(if (nrow(cur()) && prev()$n > 0) delta(cur()$deaths, prev()$deaths, cmp_label()) else p(class = "kpi-detail", "No comparison"))
   output$vb_cfr <- renderText(if (nrow(cur())) pct(cur()$cfr_pct, 2) else "–")
   output$vb_inc <- renderText(if (nrow(cur())) rate_fmt(cur()$incidence_per_100k) else "–")
-  output$vb_inc_sub <- renderUI(p(class = "vb-sub", if (wk_cov() < 52) sprintf("Weeks 1–%d only", wk_cov()) else "Full year"))
+  output$vb_inc_sub <- renderUI(p(class = "kpi-detail", if (wk_cov() < 52) sprintf("Weeks 1–%d only", wk_cov()) else "Full year"))
 
   output$disease_caveat <- renderUI({
     notes <- c(
@@ -537,7 +514,7 @@ server <- function(input, output, session) {
       "Paludisme suspect" = "2018 looks incomplete (lower than confirmed malaria). Deaths are recorded here until 2020 only.",
       "Malnutrition modérée" = "Reported until 2021.", "Malnutrition sévère" = "Reported until 2021.",
       "Paludisme (femmes enceintes)" = "Missing in 2020 and 2021.")
-    if (sel()$d %in% names(notes)) div(class = "alert alert-warning py-2 px-2 small", notes[[sel()$d]])
+    if (sel()$d %in% names(notes)) div(class = "attention", ico("circle-info"), div(class = "detail", notes[[sel()$d]]))
   })
 
   output$channel <- renderPlotly({
@@ -553,9 +530,9 @@ server <- function(input, output, session) {
     if (nrow(hist)) {
       p <- p |>
         add_ribbons(data = hist, x = ~week, ymin = ~lo, ymax = ~hi, name = "Range, other years",
-                    fillcolor = "rgba(61,141,176,.18)", line = list(color = "rgba(0,0,0,0)"), hoverinfo = "skip") |>
+                    fillcolor = "rgba(42,120,214,.16)", line = list(color = "rgba(0,0,0,0)"), hoverinfo = "skip") |>
         add_lines(data = hist, x = ~week, y = ~med, name = "Median, other years",
-                  line = list(color = "#3d8db0", dash = "dash", width = 1.5),
+                  line = list(color = PRIMARY, dash = "dash", width = 1.5),
                   text = ~paste0("Week ", week, "<br>Median: ", num(med), "<br>Range: ", num(lo), "–", num(hi)), hoverinfo = "text")
     }
     p |>
@@ -567,7 +544,7 @@ server <- function(input, output, session) {
   })
 
   output$annual_plot <- renderPlotly({
-    d <- annual |> filter(disease == sel()$d) |> mutate(col = ifelse(partial_year, "#9ec5d6", ifelse(year == sel()$y, DARK, PRIMARY)))
+    d <- annual |> filter(disease == sel()$d) |> mutate(col = ifelse(partial_year, LIGHT, ifelse(year == sel()$y, DARK, PRIMARY)))
     plot_ly(d, x = ~year) |>
       add_bars(y = ~cases, name = "Cases", marker = list(color = ~col),
                text = ~paste0("<b>", year, ifelse(partial_year, sprintf(" (weeks 1–%d)", LAST_WEEK_2024), ""), "</b><br>Cases: ", num(cases),
@@ -619,7 +596,7 @@ server <- function(input, output, session) {
     d <- district_sel()
     dt(d, paste0("niger-", en(sel()$d), "-districts-", sel()$y)) |>
       formatRound(c("Population", "Cases", "Deaths"), 0) |> formatRound(c("Case fatality (%)", "Per 100,000"), 2) |>
-      formatStyle("Per 100,000", background = styleColorBar(c(0, max(d$`Per 100,000`, 1, na.rm = TRUE)), "#cfe3ec"),
+      formatStyle("Per 100,000", background = styleColorBar(c(0, max(d$`Per 100,000`, 1, na.rm = TRUE)), "#cde2fb"),
                   backgroundSize = "98% 70%", backgroundRepeat = "no-repeat", backgroundPosition = "center")
   })
   output$dl_disease <- downloadHandler(
@@ -642,14 +619,14 @@ server <- function(input, output, session) {
   output$men_epi_w <- renderText(num(sum(men_y()$status == "epidemic")))
   output$men_peak <- renderText({ r <- men_y() |> slice_max(rate_per_100k, n = 1, with_ties = FALSE); paste0(rate_fmt(r$rate_per_100k), " /100k") })
   output$men_peak_sub <- renderUI({ r <- men_y() |> slice_max(rate_per_100k, n = 1, with_ties = FALSE)
-    p(class = "vb-sub", sprintf("%s, week %d (%s cases)", r$district, r$week, num(r$cases))) })
+    p(class = "kpi-detail", sprintf("%s, week %d (%s cases)", r$district, r$week, num(r$cases))) })
 
   output$men_years <- renderPlotly({
     d <- menin |> group_by(year, district) |>
       summarise(alert = any(status != "below"), epi = any(status == "epidemic"), .groups = "drop") |>
       group_by(year) |> summarise(Alert = sum(alert), Epidemic = sum(epi), .groups = "drop")
     plot_ly(d, x = ~year) |>
-      add_bars(y = ~Alert, name = "Alert or above", marker = list(color = "#f3c86b"),
+      add_bars(y = ~Alert, name = "Alert or above", marker = list(color = AMBER),
                text = ~paste0("<b>", year, "</b><br>Districts at alert or above: ", Alert), hoverinfo = "text", textposition = "none") |>
       add_bars(y = ~Epidemic, name = "Epidemic", marker = list(color = DANGER),
                text = ~paste0("<b>", year, "</b><br>Districts at epidemic level: ", Epidemic), hoverinfo = "text", textposition = "none") |>
@@ -678,7 +655,7 @@ server <- function(input, output, session) {
       mutate(label = factor(paste0(district, " (", region, ")"), levels = rev(lv)),
              code = unname(c(below = 0, alert = 1, epidemic = 2)[status]))
     plot_ly(d, x = ~week, y = ~label, z = ~code, type = "heatmap", zmin = 0, zmax = 2, xgap = 1, ygap = 1, showscale = FALSE,
-            colorscale = list(list(0, "#edf1f4"), list(0.33, "#edf1f4"), list(0.34, "#f3c86b"), list(0.66, "#f3c86b"),
+            colorscale = list(list(0, "#eef0f3"), list(0.33, "#eef0f3"), list(0.34, AMBER), list(0.66, AMBER),
                               list(0.67, DANGER), list(1, DANGER)),
             text = ~paste0("<b>", district, "</b>, week ", week, "<br>Cases: ", num(cases), "<br>Per 100,000: ", rate_fmt(rate_per_100k),
                            "<br>Status: ", status), hoverinfo = "text") |>
@@ -702,9 +679,9 @@ server <- function(input, output, session) {
   rep_cur <- reactive(rep_year_tbl |> filter(year == as.integer(input$rep_year)))
   rep_prev <- reactive(rep_year_tbl |> filter(year == as.integer(input$rep_year) - 1))
   pp <- function(now, before, yr) {
-    if (!length(before)) return(p(class = "vb-sub", "No comparison"))
+    if (!length(before)) return(p(class = "kpi-detail", "No comparison"))
     ch <- now - before
-    p(class = "vb-sub", span(class = if (ch >= 0) "delta-down" else "delta-up", sprintf("%+.1f points", ch)), sprintf(" vs %d", yr - 1))
+    p(class = "kpi-detail", span(class = if (ch >= 0) "baisse" else "hausse", sprintf("%s %+.1f points", if (ch >= 0) "▲" else "▼", ch)), sprintf(" vs %d", yr - 1))
   }
   output$rep_t <- renderText(pct(rep_cur()$Timeliness))
   output$rep_t_sub <- renderUI(pp(rep_cur()$Timeliness, rep_prev()$Timeliness, as.integer(input$rep_year)))
@@ -714,7 +691,7 @@ server <- function(input, output, session) {
 
   output$rep_trend <- renderPlotly({
     d <- rep_year_tbl |> select(-missing) |> pivot_longer(-year, names_to = "measure", values_to = "value")
-    plot_ly(d, x = ~year, y = ~value, color = ~measure, colors = c(Completeness = PRIMARY, Timeliness = WARM),
+    plot_ly(d, x = ~year, y = ~value, color = ~measure, colors = c(Completeness = GREEN, Timeliness = PRIMARY),
             type = "scatter", mode = "lines+markers", line = list(width = 2.2), marker = list(size = 7),
             text = ~paste0("<b>", measure, ", ", year, "</b><br>", pct(value)), hoverinfo = "text") |>
       layout(yaxis = list(title = "% of weekly district reports", range = c(50, 101), ticksuffix = "%"),
@@ -739,8 +716,8 @@ server <- function(input, output, session) {
       arrange(region, district)
     lv <- unique(d$label)
     plot_ly(d, x = ~week, y = ~factor(label, levels = rev(lv)), z = ~code, type = "heatmap", zmin = 0, zmax = 2,
-            colorscale = list(list(0, DANGER), list(0.33, DANGER), list(0.34, WARM), list(0.66, WARM),
-                              list(0.67, "#2e7d4f"), list(1, "#2e7d4f")), showscale = FALSE, xgap = 1, ygap = 1,
+            colorscale = list(list(0, DANGER), list(0.33, DANGER), list(0.34, AMBER), list(0.66, AMBER),
+                              list(0.67, GREEN), list(1, GREEN)), showscale = FALSE, xgap = 1, ygap = 1,
             text = ~paste0("<b>", district, "</b>, week ", week, ": ", c(T = "on time", L = "late", N = "not received")[status]),
             hoverinfo = "text") |>
       layout(xaxis = list(title = "Epidemiological week", showgrid = FALSE),
@@ -773,14 +750,14 @@ server <- function(input, output, session) {
   mat_cur <- reactive(mat_year_tbl |> filter(year == as.integer(input$mat_year)))
   output$mat_n <- renderText(num(mat_cur()$notified))
   output$mat_i <- renderText(if (is.na(mat_cur()$investigated)) "Not recorded" else num(mat_cur()$investigated))
-  output$mat_i_sub <- renderUI(p(class = "vb-sub", if (is.na(mat_cur()$share)) "" else paste0(pct(mat_cur()$share), " of notified deaths")))
+  output$mat_i_sub <- renderUI(p(class = "kpi-detail", if (is.na(mat_cur()$share)) "" else paste0(pct(mat_cur()$share), " of notified deaths")))
 
   output$mat_trend <- renderPlotly({
     plot_ly(mat_year_tbl, x = ~year) |>
       add_bars(y = ~notified, name = "Notified", marker = list(color = PRIMARY),
                text = ~paste0("<b>", year, "</b><br>Notified: ", num(notified), "<br>Investigated: ", num(investigated)),
                hoverinfo = "text", textposition = "none") |>
-      add_bars(y = ~investigated, name = "Investigated", marker = list(color = "#9ec5d6"), hoverinfo = "skip") |>
+      add_bars(y = ~investigated, name = "Investigated", marker = list(color = LIGHT), hoverinfo = "skip") |>
       add_trace(y = ~share, name = "Share investigated (%)", yaxis = "y2", type = "scatter", mode = "lines+markers",
                 line = list(color = WARM, width = 2), marker = list(color = WARM, size = 6),
                 text = ~paste0(year, ": ", pct(share), " investigated"), hoverinfo = "text") |>
@@ -852,7 +829,7 @@ server <- function(input, output, session) {
     dt(d, "niger-mdo-validation", page = 15) |>
       formatRound(c("Reference", "Parsed", "Difference"), 0) |>
       formatStyle("Status", fontWeight = "600",
-                  color = styleEqual(c("match", "within 1%", "differs", "no reference"), c("#2e7d4f", "#3d8db0", DANGER, MUTED)))
+                  color = styleEqual(c("match", "within 1%", "differs", "no reference"), c("#0b7a0b", "#1c5cab", DANGER, MUTED)))
   })
 }
 

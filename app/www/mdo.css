@@ -1,0 +1,24 @@
+/* Classes specific to this dashboard. style.css is the shared MSF stylesheet, kept identical to
+   the Ituri dashboard's: change the look there, not here. */
+
+.card-note { color: var(--encre-3); font-size: .78rem; line-height: 1.45; margin: 0 0 .35rem; }
+.map-note { color: var(--encre-3); font-size: .72rem; line-height: 1.4; margin: .25rem 0 0; }
+.legend-swatch { display: inline-block; width: .75rem; height: .75rem; border-radius: 2px; vertical-align: -1px; margin: 0 .25rem 0 .7rem; }
+.legend-swatch:first-child { margin-left: 0; }
+
+.kpi p.kpi-detail { margin: 0; }
+.sidebar .attention { color: var(--encre); }
+.sidebar .btn-primary { width: 100%; }
+
+.methods { max-width: 90ch; }
+.methods dt { color: var(--msf-fonce); font-weight: 700; margin-top: .7rem; }
+.methods dd { margin-bottom: 0; }
+.methods h3 { color: var(--msf-fonce); font-size: 1rem; font-weight: 700; margin: 1rem 0 .4rem; }
+
+/* DataTables export buttons */
+.dataTables_wrapper .dt-buttons .btn { font-size: .76rem; padding: .25rem .6rem; }
+.dataTables_wrapper .dataTables_filter { margin-bottom: .4rem; }
+
+/* Without a logo file the login card still needs its spacing */
+.panel-auth .connexion-titre { text-align: center; }
+.panel-auth .connexion-lieu { text-align: center; }

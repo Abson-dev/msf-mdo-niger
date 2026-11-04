@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 (2026-11-04)
+
+- Login with `shinymanager` and an encrypted accounts database; the app refuses to start without accounts. `manage_accounts.bat` creates them; `run_app.bat --no-login` skips the login on this computer.
+- Same look as the Ituri surveillance dashboard: shared `style.css`, MSF logo and brand block, dark sidebar for the controls, flat tabs with icons, page headers, key-figure cards, chart colours.
+- Fixed the region map ignoring a requested colour scale: the timeliness map now really runs from 80% to 100%.
+- Fixed the Niamey and Diffa map labels, which could be unreadable or clipped.
+
 ## 1.3.0 (2026-11-02)
 
 - Methodology note (`docs/methodology/`): econometric and statistical models for the data, with mathematical specifications.

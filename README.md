@@ -26,7 +26,7 @@ Ten years of Niger's weekly notifiable disease reports (*Maladies à Déclaratio
 
 > **The data are not in this repository.** They belong to the Ministry of Public Health of Niger. Get them from the project team and place them as described in [`data/README.md`](data/README.md).
 
-**Windows:** install [Miniforge](https://conda-forge.org/download/), put the data in `data/raw` and `data/shp`, then double-click **`run_app.bat`**. The first run creates the `mdo-niger` environment and builds the dashboard data (a few minutes); after that the dashboard opens in your browser in 10–20 seconds. Keep the black window open while you use it.
+**Windows:** install [Miniforge](https://conda-forge.org/download/), put the data in `data/raw` and `data/shp`, create your login with `manage_accounts.bat first.last`, then double-click **`run_app.bat`**. The first run creates the `mdo-niger` environment and builds the dashboard data (a few minutes); after that the login page opens in your browser in 10–20 seconds. Keep the black window open while you use it.
 
 **Any system:**
 
@@ -46,18 +46,34 @@ Rscript -e "shiny::runApp('app', launch.browser = TRUE)"
 | **Meningitis thresholds** | Which districts crossed the WHO alert (3/100,000/week) or epidemic (10/100,000/week) threshold, and when? |
 | **Reporting performance** | How reliably do districts report? Timeliness and completeness, 2015–2023, and 2024 DHIS2 completeness |
 | **Maternal deaths** | Maternal deaths notified and investigated, 2015–2021 |
-| **Data & methods** | DHIS2 2024 compared with the weekly reports; what each source file contributes; every cross-check; definitions and caveats |
+| **DHIS2 2024** | How does the DHIS2 extract compare with the weekly reports? |
+| **Sources and checks** | What does each source file contribute, and do the figures match the totals written in the files? |
+| **Methods** | Definitions and caveats |
 
-Every chart exports a PNG (camera icon), every table exports CSV or Excel, and a link can open a given tab, e.g. `?tab=Meningitis%20thresholds`.
+Every chart exports a PNG (camera icon) and every table exports CSV or Excel. The look comes from `app/www/style.css`, the same stylesheet as the Ituri surveillance dashboard; `app/www/mdo.css` only adds what is specific to this app.
+
+### Login
+
+The dashboard requires a login (`shinymanager`, with an encrypted accounts database) and refuses to start without accounts.
+
+```powershell
+manage_accounts.bat first.last other.account     # replaces ALL accounts: list every one to keep
+```
+
+Each account gets a random password, written to `app/accounts_passwords.csv` and never shown on screen. Send each password individually, then delete that file. Sessions end after 30 minutes without activity, and reloading the page asks for the login again. Log out with the round **+** button at the bottom right.
+
+`run_app.bat --no-login` skips the login for working alone on this computer; the app only listens on `127.0.0.1`. In that mode a link can also open a given tab, e.g. `?tab=Meningitis%20thresholds`.
+
+The accounts database, its secret (`app/.Renviron`), the password file and the MSF logo (`app/www/logo_msf.png`) are not in git. Without the logo file the app still runs, without a logo.
 
 <table>
   <tr>
     <td width="50%"><img src="docs/screenshots/disease-explorer.png" alt="Disease explorer: weekly cases compared with previous years"></td>
-    <td width="50%"><img src="docs/screenshots/disease-explorer-maps.png" alt="Disease explorer: region map, weekly curves by region and all-years heatmap"></td>
+    <td width="50%"><img src="docs/screenshots/disease-explorer-full.png" alt="Disease explorer: region map, weekly curves by region, all-years heatmap and district ranking"></td>
   </tr>
   <tr>
     <td><b>Disease explorer.</b> Measles in 2023 against the range of 2015–2022.</td>
-    <td><b>By region.</b> Incidence map, weekly curves by region, all years at a glance.</td>
+    <td><b>The full page.</b> Incidence map, weekly curves by region, all years at a glance, district ranking.</td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/meningitis-thresholds.png" alt="Meningitis thresholds tab"></td>
@@ -111,10 +127,14 @@ The processed tables and their columns are described in the [data dictionary](do
 
 ```
 ├── run_app.bat              Double-click to start the dashboard (Windows)
+├── manage_accounts.bat      Create or replace the login accounts
 ├── rebuild_data.bat         Double-click to rebuild the data and test the app
 ├── environment.yml          Miniforge environment: Python (processing) + R (dashboard)
 ├── app/                     Shiny dashboard, self-contained
 │   ├── app.R
+│   ├── R/                   auth.R (login), identity.R (brand, page headers, key figures)
+│   ├── www/                 style.css (shared MSF stylesheet), mdo.css, logo (not in git)
+│   ├── manage_accounts.R
 │   ├── data/                Tables the app reads (built locally, not in git)
 │   └── tests/test_app.R     Renders every output for several input sets
 ├── scripts/                 Python pipeline: raw files -> data/processed and app/data
@@ -187,7 +207,15 @@ What the pipeline cleans:
 
 `app/` reads only `app/data/` (about 8 MB, built locally by the pipeline), so the folder can be deployed on its own once the data are built:
 
-- **shinyapps.io or Posit Connect:** `install.packages("rsconnect")`, then `rsconnect::deployApp("app")`.
+- **shinyapps.io or Posit Connect:** `install.packages("rsconnect")`, create the accounts, then deploy with the accounts secret and without the password file:
+
+  ```r
+  files <- list.files("app", recursive = TRUE)
+  files <- files[!grepl("^tests/|^manage_accounts|^accounts_passwords", files)]
+  rsconnect::deployApp("app", appFiles = c(files, ".Renviron"))
+  ```
+
+  Every account can see all the data. Never put `MDO_LOCAL` in `app/.Renviron`: it would switch the login off.
 - **Shiny Server:** copy `app/` into the server's app directory.
 
 The app loads no external fonts or map tiles and works offline. It shows data aggregated to health district only.

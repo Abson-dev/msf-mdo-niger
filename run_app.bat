@@ -1,14 +1,18 @@
 @echo off
 rem Niger MDO surveillance dashboard: double-click to start.
 rem Finds Miniforge/conda, creates the "mdo-niger" environment on first run, then opens the app in the browser.
-rem Options:  run_app.bat --no-browser   (start without opening a browser)
+rem Options:  run_app.bat --no-browser   start without opening a browser
+rem           run_app.bat --no-login     skip the login, on this computer only
 setlocal
 title Niger MDO dashboard
 cd /d "%~dp0"
 
 set "ENV_NAME=mdo-niger"
 set "LAUNCH=TRUE"
-if /i "%~1"=="--no-browser" set "LAUNCH=FALSE"
+for %%A in (%*) do (
+    if /i "%%~A"=="--no-browser" set "LAUNCH=FALSE"
+    if /i "%%~A"=="--no-login" set "MDO_LOCAL=1"
+)
 
 call :find_conda || goto :fail
 
@@ -19,6 +23,13 @@ if errorlevel 1 (
 )
 
 call "%CONDA%" activate %ENV_NAME% || goto :fail
+
+rem An environment made before the login was added needs the new packages
+Rscript -e "quit(status = !requireNamespace('shinymanager', quietly = TRUE))" >nul 2>nul
+if errorlevel 1 (
+    echo Updating the "%ENV_NAME%" environment. This takes a few minutes.
+    call "%CONDA%" env update -n %ENV_NAME% -f environment.yml || goto :fail
+)
 
 rem The data are not in the repository: build the app's tables from data\raw the first time
 if not exist "app\data\mdo_annual.csv" (
@@ -31,11 +42,16 @@ if not exist "app\data\mdo_annual.csv" (
     python scripts\run_all.py || goto :fail
 )
 
+if not "%MDO_LOCAL%"=="1" if not exist "app\accounts.sqlite" (
+    echo No login accounts yet. Create them with:  manage_accounts.bat first.last
+    goto :fail
+)
+
 echo.
 echo Starting the dashboard. It opens in your browser; the address is shown below.
 echo Keep this window open while you use the app. Close it, or press Ctrl+C, to stop.
 echo.
-Rscript -e "shiny::runApp('app', launch.browser = %LAUNCH%)"
+Rscript -e "shiny::runApp('app', host = '127.0.0.1', launch.browser = %LAUNCH%)"
 goto :eof
 
 :find_conda

@@ -8,6 +8,14 @@ analysis/output/
 analysis/report/results_report.md
 analysis/report/*.pdf
 
+# Login accounts and secrets, never committed
+*.sqlite
+.Renviron
+app/accounts_passwords.csv
+
+# The MSF logo stays out of the repository, as in the Ituri project
+app/www/logo_msf.png
+
 # Claude Code local session files
 .claude/
 

@@ -1,5 +1,6 @@
 # Renders every output of the app for several inputs. Run from the project root:
 #   Rscript app/tests/test_app.R
+Sys.setenv(MDO_LOCAL = "1")   # the login is tested separately: this exercises the dashboard itself
 setwd("app")
 app <- source("app.R", local = TRUE)$value
 

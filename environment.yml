@@ -19,3 +19,6 @@ dependencies:
   - r-jsonlite
   - r-dt
   - r-scales
+  - r-fontawesome
+  - r-shinymanager
+  - r-openssl
